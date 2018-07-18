@@ -1,0 +1,35 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce Force Authentification Before Checkout\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-07-17 14:44+0000\n"
+"PO-Revision-Date: 2018-07-17 14:45+0000\n"
+"Last-Translator: playgroundwp <luizpbills@gmail.com>\n"
+"Language-Team: Português do Brasil\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/"
+
+#. Description of the plugin
+msgid "Force customer to log in or register before checkout"
+msgstr ""
+"Obriga os clientes a fazerem login ou cadastro antes de irem para o checkout."
+
+#. Author URI of the plugin
+msgid "https://luizpb.com/"
+msgstr ""
+
+#. Author of the plugin
+msgid "Luiz Bills"
+msgstr ""
+
+#: woocommerce-force-auth-before-checkout.php:77
+msgid "Please log in or register to complete your purchase."
+msgstr "Por favor, faça login ou cadastre-se para completar a sua compra."
+
+#. Name of the plugin
+msgid "WooCommerce Force Authentification Before Checkout"
+msgstr ""
