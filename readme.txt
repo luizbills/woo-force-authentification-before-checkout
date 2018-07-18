@@ -22,7 +22,7 @@ Force customer to log in or register before checkout to increase your conversion
 
 = Contribuitions =
 
-- For bugs, suggestions or contribuitions open a issue in our [Github Repository](https://github.com/luizbills/woocommerce-force-auth-before-checkout/issues) or create a topic in [WordPress Plugin Forum](https://wordpress.org/support/plugin/wc-force-auth).
+- For bugs, suggestions or contribuitions open a issue in our [Github Repository](https://github.com/luizbills/woo-force-authentification-before-checkout/issues) or create a topic in [WordPress Plugin Forum](https://wordpress.org/support/plugin/woo-force-authentification-before-checkout).
 
 == Frequently Asked Questions ==
 
