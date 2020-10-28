@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: WooCommerce Force Authentification Before Checkout
+Plugin Name: Force Authentification Before Checkout for WooCommerce
 Description: Force customer to log in or register before checkout
-Version: 1.2.2
+Version: 1.2.3
 Author: Luiz Bills
 Author URI: https://luizpb.com/
 
@@ -26,16 +26,29 @@ class WC_Force_Auth_Before_Checkout {
 	protected static $_instance = null;
 
 	protected function __construct () {
-		add_action( 'init', [ $this, 'load_plugin_textdomain' ] );
-
-		add_action( 'template_redirect', [ $this, 'user_redirect' ] );
-		add_action( 'wp_head', [ $this, 'add_notice' ] );
-
-		add_filter( 'woocommerce_registration_redirect', [ $this, 'registration_redirect' ], 100 );
-		add_filter( 'woocommerce_login_redirect', [ $this, 'login_redirect' ], 100 );
+		add_action( 'plugins_loaded', [ $this, 'init' ] );
 	}
 
-	public function user_redirect () {
+	public function is_woocommerce_installed () {
+		return function_exists( 'WC' );
+	}
+
+	public function init () {
+		if ( ! $this->is_woocommerce_installed() ) {
+			add_action( 'admin_notices', [ $this, 'add_admin_notice' ] );
+			return;
+		};
+
+		add_action( 'init', [ $this, 'load_plugin_textdomain' ] );
+
+		add_action( 'template_redirect', [ $this, 'redirect_to_account_page' ] );
+		add_action( 'wp_head', [ $this, 'on_account_page' ] );
+
+		//add_filter( 'woocommerce_registration_redirect', [ $this, 'redirect_to_checkout' ], 100 );
+		//add_filter( 'woocommerce_login_redirect', [ $this, 'redirect_to_checkout' ], 100 );
+	}
+
+	public function redirect_to_account_page () {
 		if( is_checkout() && ! is_user_logged_in() ) {
 			$url = get_permalink( get_option( 'woocommerce_myaccount_page_id' ) );
 			$url = add_query_arg( self::URL_ARG, '', $url );
@@ -44,27 +57,27 @@ class WC_Force_Auth_Before_Checkout {
 		}
 	}
 
-	public function registration_redirect ( $redirect ) {
+	public function redirect_to_checkout ( $redirect ) {
 		if ( isset( $_GET[ self::URL_ARG ] ) ) {
 			return wc_get_checkout_url();
 		}
 		return $redirect;
 	}
 
-	public function login_redirect ( $redirect ) {
-		if ( isset( $_GET[ self::URL_ARG ] ) ) {
-			return wc_get_checkout_url();
+	public function on_account_page () {
+		if ( is_account_page() && isset( $_GET[ self::URL_ARG ] ) ) {
+			if ( ! is_user_logged_in() ) {
+				wc_add_notice( $this->get_alert_message(), 'notice' );
+			} else {
+				?>
+				<meta http-equiv="Refresh" content="0; url='<?= wc_get_checkout_url(); ?>'" />
+				<?php
+				exit();
+			}
 		}
-		return $redirect;
 	}
 
-	public function add_notice () {
-		if ( ! is_user_logged_in() && is_account_page() && isset( $_GET[ self::URL_ARG ] ) ) {
-			wc_add_notice( $this->get_message(), 'notice' );
-		}
-	}
-
-	public function get_message () {
+	public function get_alert_message () {
 		return apply_filters( 'wc_force_auth_message', __( 'Please log in or register to complete your purchase.', 'wc-force-auth' ) );
 	}
 
@@ -78,10 +91,16 @@ class WC_Force_Auth_Before_Checkout {
 		}
 		return self::$_instance;
 	}
+
+	public function add_admin_notice () {
+		?>
+		<div class="notice notice-error">
+			<p>
+				<?= esc_html__( 'You need install and activate the WooCommerce plugin.', 'wc-force-auth' ) ?>
+			</p>
+		</div>
+		<?php
+	}
 }
 
-add_action( 'plugins_loaded', function () {
-	if ( function_exists( 'WC' ) ) {
-		WC_Force_Auth_Before_Checkout::get_instance();
-	}
-} );
+WC_Force_Auth_Before_Checkout::get_instance();
