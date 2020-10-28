@@ -44,8 +44,8 @@ class WC_Force_Auth_Before_Checkout {
 		add_action( 'template_redirect', [ $this, 'redirect_to_account_page' ] );
 		add_action( 'wp_head', [ $this, 'on_account_page' ] );
 
-		//add_filter( 'woocommerce_registration_redirect', [ $this, 'redirect_to_checkout' ], 100 );
-		//add_filter( 'woocommerce_login_redirect', [ $this, 'redirect_to_checkout' ], 100 );
+		add_filter( 'woocommerce_registration_redirect', [ $this, 'redirect_to_checkout' ], 100 );
+		add_filter( 'woocommerce_login_redirect', [ $this, 'redirect_to_checkout' ], 100 );
 	}
 
 	public function redirect_to_account_page () {
