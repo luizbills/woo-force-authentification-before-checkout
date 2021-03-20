@@ -13,7 +13,7 @@ Text Domain: wc-force-auth
 Domain Path: /languages
 
 WC requires at least: 3.0
-WC tested up to: 4.5
+WC tested up to: 5.1
 */
 
 if ( ! defined( 'WPINC' ) ) die();
