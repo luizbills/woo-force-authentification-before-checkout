@@ -5,7 +5,7 @@ Tags: woocommerce, checkout, login, register, force, before, cart
 Requires at least: 4.0
 Tested up to: 5.7
 Requires PHP: 5.4
-Stable tag: 1.2.3
+Stable tag: 1.3.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -39,6 +39,12 @@ Yes. With this [code](https://gist.github.com/luizbills/25d2c83848de1fb23beceb0e
 1. Notice in "my account" page.
 
 == Changelog ==
+
+= 1.3.0 - 2020/4/19 =
+
+- New filter: wc_force_auth_redirect_to_account_page
+- New filter: wc_force_auth_login_page_url
+- New filter: wc_force_auth_checkout_page_url
 
 = 1.2.3 - 2018/10/28 =
 
