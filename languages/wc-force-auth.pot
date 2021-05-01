@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Force Authentification Before Checkout for WooCommerce\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-28 19:53+0000\n"
+"POT-Creation-Date: 2021-05-01 16:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -14,6 +14,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Loco-Version: 2.4.4; wp-5.5.1"
+
+#: woo-force-authentification-before-checkout.php:138
+msgid "Donate"
+msgstr ""
 
 #. Name of the plugin
 msgid "Force Authentification Before Checkout for WooCommerce"
@@ -31,10 +35,17 @@ msgstr ""
 msgid "Luiz Bills"
 msgstr ""
 
-#: woo-force-authentification-before-checkout.php:81
+#: woo-force-authentification-before-checkout.php:83
 msgid "Please log in or register to complete your purchase."
 msgstr ""
 
-#: woo-force-authentification-before-checkout.php:99
+#: woo-force-authentification-before-checkout.php:132
+#, php-format
+msgid ""
+"Thanks for using the %s plugin! Consider making a donation to help keep this "
+"plugin always up to date."
+msgstr ""
+
+#: woo-force-authentification-before-checkout.php:101
 msgid "You need install and activate the WooCommerce plugin."
 msgstr ""

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Force Authentification Before Checkout\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-28 19:53+0000\n"
-"PO-Revision-Date: 2020-10-28 19:54+0000\n"
+"PO-Revision-Date: 2021-05-01 16:04+0000\n"
 "Last-Translator: \n"
 "Language-Team: Português do Brasil\n"
 "Language: pt_BR\n"
@@ -12,11 +12,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.4; wp-5.5.1"
+"X-Loco-Version: 2.5.2; wp-5.7.1"
+
+#: woo-force-authentification-before-checkout.php:138
+msgid "Donate"
+msgstr "Fazer uma doação"
 
 #. Name of the plugin
 msgid "Force Authentification Before Checkout for WooCommerce"
-msgstr ""
+msgstr "Force Authentification Before Checkout for WooCommerce"
 
 #. Description of the plugin
 msgid "Force customer to log in or register before checkout"
@@ -32,10 +36,19 @@ msgstr "https://luizpb.com/"
 msgid "Luiz Bills"
 msgstr "Luiz Bills"
 
-#: woo-force-authentification-before-checkout.php:81
+#: woo-force-authentification-before-checkout.php:83
 msgid "Please log in or register to complete your purchase."
 msgstr "Por favor, faça login ou cadastre-se para completar a sua compra."
 
-#: woo-force-authentification-before-checkout.php:99
+#: woo-force-authentification-before-checkout.php:132
+#, php-format
+msgid ""
+"Thanks for using the %s plugin! Consider making a donation to help keep this "
+"plugin always up to date."
+msgstr ""
+"Obrigado por usar o plugin %s! Considere fazer uma doação para ajudar a "
+"manter este plugin sempre atualizado."
+
+#: woo-force-authentification-before-checkout.php:101
 msgid "You need install and activate the WooCommerce plugin."
 msgstr "Você precisa instalar e ativar o plugin WooCommerce."
