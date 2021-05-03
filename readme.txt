@@ -2,10 +2,10 @@
 Contributors: luizbills
 Donate link: http://luizpb.com/en/
 Tags: woocommerce, checkout, login, register, force, before, cart
-Requires at least: 4.0
+Requires at least: 4.8
 Tested up to: 5.7
-Requires PHP: 5.4
-Stable tag: 1.3.1
+Requires PHP: 7.3
+Stable tag: 1.3.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -38,6 +38,10 @@ Yes. With this [code](https://gist.github.com/luizbills/25d2c83848de1fb23beceb0e
 1. Notice in "my account" page.
 
 == Changelog ==
+
+= 1.3.2 =
+
+* Fix an syntax error with older versions of PHP
 
 = 1.3.1 - 2020/4/19 =
 
