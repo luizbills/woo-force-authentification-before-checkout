@@ -131,7 +131,7 @@ class WC_Force_Auth_Before_Checkout {
 			<p>
 				<?= sprintf(
 					esc_html__( 'Thanks for using the %s plugin! Consider making a donation to help keep this plugin always up to date.', 'wc-force-auth' ),
-					"<strong>$plugin_name</strong>",
+					"<strong>$plugin_name</strong>"
 				); ?>
 			</p>
 			<p>
