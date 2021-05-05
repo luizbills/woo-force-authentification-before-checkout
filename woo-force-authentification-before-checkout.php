@@ -111,23 +111,25 @@ class WC_Force_Auth_Before_Checkout {
 		global $pagenow;
 		$plugin_data = \get_plugin_data( __FILE__ );
 		$plugin_name = $plugin_data['Name'];
+		$prefix = 'wc_force_auth_';
 
-		if ( 'plugins.php' !== $pagenow ) return;
+		if ( ! in_array( $pagenow, [ 'plugins.php', 'update-core.php' ] ) ) return;
 
-		if ( isset( $_GET['wc_force_auth_dismiss_donation_notice'] ) ) {
+		if ( isset( $_GET[$prefix . 'dismiss_donation_notice'] ) ) {
 			update_option(
-				'wc_force_auth_donation_notice_dismissed',
+				$prefix . 'donation_notice_dismissed',
 				time()
 			);
 		}
 
-		$notice_dismissed = (int) get_option( 'wc_force_auth_donation_notice_dismissed' );
-		$timeout = (4 * MONTH_IN_SECONDS) + $notice_dismissed;
-		if ( time() <= $timeout ) {
+		$notice_dismissed = (int) get_option( $prefix . 'donation_notice_dismissed' );
+		$duration = 6 * MONTH_IN_SECONDS;
+		if ( $notice_dismissed && time() <= ( $duration + $notice_dismissed ) ) {
 			return;
 		}
+
 		?>
-		<div id="wc_force_auth_donation_notice" class="notice notice-info is-dismissible">
+		<div id="<?= $prefix ?>donation_notice" class="notice notice-info is-dismissible">
 			<p>
 				<?= sprintf(
 					esc_html__( 'Thanks for using the %s plugin! Consider making a donation to help keep this plugin always up to date.', 'wc-force-auth' ),
@@ -142,10 +144,14 @@ class WC_Force_Auth_Before_Checkout {
 		</div>
 		<script>
 			window.jQuery(function ($) {
-				const dismiss_selector = '#wc_force_auth_donation_notice .notice-dismiss';
+				const dismiss_selector = '#<?= $prefix ?>donation_notice .notice-dismiss';
 				$(document).on('click', dismiss_selector, function (evt) {
-					const current_page = window.location.origin + window.location.pathname;
-					window.location = current_page + '?wc_force_auth_dismiss_donation_notice'
+					$.ajax({
+						url: window.location.origin
+							+ window.location.pathname
+							+ '?<?= $prefix ?>dismiss_donation_notice',
+						method: 'GET'
+					});
 				})
 			})
 		</script>
