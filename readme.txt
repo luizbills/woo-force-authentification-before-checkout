@@ -5,7 +5,7 @@ Tags: woocommerce, checkout, login, register, force, before, cart
 Requires at least: 4.8
 Tested up to: 5.7
 Requires PHP: 7.3
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -38,6 +38,10 @@ Yes. With this [code](https://gist.github.com/luizbills/25d2c83848de1fb23beceb0e
 1. Notice in "my account" page.
 
 == Changelog ==
+
+= 1.4.1 =
+
+* Fix call to undefined method
 
 = 1.4.0 =
 

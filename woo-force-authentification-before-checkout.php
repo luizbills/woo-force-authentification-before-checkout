@@ -2,7 +2,7 @@
 /*
 Plugin Name: Force Authentification Before Checkout for WooCommerce
 Description: Force customer to log in or register before checkout
-Version: 1.4.0
+Version: 1.4.1
 Author: Luiz Bills
 Author URI: https://luizpb.com/
 
@@ -99,7 +99,7 @@ class WC_Force_Auth_Before_Checkout {
 	}
 
 	public function add_wc_notice () {
-		if ( ! is_user_logged_in() && is_account_page() && $this->has_redirect_query_param() ) {
+		if ( ! is_user_logged_in() && is_account_page() && $this->has_query_param() ) {
 			wc_add_notice( $this->get_alert_message(), 'notice' );
 		}
 	}
