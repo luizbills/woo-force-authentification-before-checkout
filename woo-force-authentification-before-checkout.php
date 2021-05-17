@@ -2,7 +2,7 @@
 /*
 Plugin Name: Force Authentification Before Checkout for WooCommerce
 Description: Force customer to log in or register before checkout
-Version: 1.3.2
+Version: 1.4.0
 Author: Luiz Bills
 Author URI: https://luizpb.com/
 
@@ -13,7 +13,7 @@ Text Domain: wc-force-auth
 Domain Path: /languages
 
 WC requires at least: 3.0
-WC tested up to: 5.2
+WC tested up to: 5.3
 */
 
 if ( ! defined( 'WPINC' ) ) die();
@@ -29,8 +29,22 @@ class WC_Force_Auth_Before_Checkout {
 		add_action( 'plugins_loaded', [ $this, 'init' ] );
 	}
 
-	public function is_woocommerce_installed () {
+	protected function is_woocommerce_installed () {
 		return function_exists( 'WC' );
+	}
+
+	protected function has_query_param () {
+		return isset( $_GET[ self::URL_ARG ] );
+	}
+
+	protected function get_login_page_url () {
+		return apply_filters( 'wc_force_auth_login_page_url', 
+			get_permalink( get_option( 'woocommerce_myaccount_page_id' ) )
+		);
+	}
+
+	protected function get_checkout_page_url () {
+		return apply_filters( 'wc_force_auth_checkout_page_url', wc_get_checkout_url() );
 	}
 
 	public function init () {
@@ -39,14 +53,15 @@ class WC_Force_Auth_Before_Checkout {
 			return;
 		};
 
-		add_action( 'admin_notices', [ $this, 'add_donation_notice' ] );
 		add_action( 'init', [ $this, 'load_plugin_textdomain' ] );
+		add_action( 'admin_notices', [ $this, 'add_donation_notice' ] );
 
 		add_action( 'template_redirect', [ $this, 'redirect_to_account_page' ] );
-		add_action( 'wp_head', [ $this, 'on_account_page' ] );
+		add_action( 'wp_head', [ $this, 'add_wc_notice' ] );
 
 		add_filter( 'woocommerce_registration_redirect', [ $this, 'redirect_to_checkout' ], 100 );
 		add_filter( 'woocommerce_login_redirect', [ $this, 'redirect_to_checkout' ], 100 );
+		add_action( 'wp_head', [ $this, 'redirect_to_checkout_via_html' ] );
 	}
 
 	public function redirect_to_account_page () {
@@ -55,46 +70,42 @@ class WC_Force_Auth_Before_Checkout {
 			is_checkout() && ! is_user_logged_in()
 		);
 		if( $condition ) {
-			$login_page_url = get_permalink( get_option( 'woocommerce_myaccount_page_id' ) );
-			$redirect = apply_filters( 'wc_force_auth_login_page_url', $login_page_url );
-			wp_safe_redirect( add_query_arg( self::URL_ARG, '', $redirect ) );
+			wp_safe_redirect( add_query_arg( self::URL_ARG, '', $this->get_login_page_url() ) );
 			die;
 		}
 	}
 
-	public function redirect_to_checkout ( $redirect ) {
-		if ( isset( $_GET[ self::URL_ARG ] ) ) {
-			$redirect = apply_filters( 'wc_force_auth_checkout_page_url', wc_get_checkout_url() );
+	public function redirect_to_checkout_via_html () {
+		if ( $this->has_query_param() && is_user_logged_in() ) {
+			?>
+			<meta
+				http-equiv="Refresh"
+				content="0; url='<?= esc_attr( $this->get_checkout_page_url() ); ?>'"
+			/>
+			<?php
+			exit();
 		}
-		return $redirect;
 	}
 
-	public function on_account_page () {
-		if ( is_account_page() && isset( $_GET[ self::URL_ARG ] ) ) {
-			if ( ! is_user_logged_in() ) {
-				wc_add_notice( $this->get_alert_message(), 'notice' );
-			} else {
-				?>
-				<meta http-equiv="Refresh" content="0; url='<?= esc_attr( wc_get_checkout_url() ); ?>'" />
-				<?php
-				exit();
-			}
+	public function redirect_to_checkout ( $redirect ) {
+		if ( $this->has_query_param() ) {
+			$redirect = $this->get_checkout_page_url();
 		}
+		return $redirect;
 	}
 
 	public function get_alert_message () {
 		return apply_filters( 'wc_force_auth_message', __( 'Please log in or register to complete your purchase.', 'wc-force-auth' ) );
 	}
 
-	public function load_plugin_textdomain() {
-		load_plugin_textdomain( 'wc-force-auth', false, dirname( plugin_basename( self::FILE ) ) . '/languages/' );
+	public function add_wc_notice () {
+		if ( ! is_user_logged_in() && is_account_page() && $this->has_redirect_query_param() ) {
+			wc_add_notice( $this->get_alert_message(), 'notice' );
+		}
 	}
 
-	public static function get_instance() {
-		if ( is_null( self::$_instance ) ) {
-			self::$_instance = new self();
-		}
-		return self::$_instance;
+	public function load_plugin_textdomain() {
+		load_plugin_textdomain( 'wc-force-auth', false, dirname( plugin_basename( self::FILE ) ) . '/languages/' );
 	}
 
 	public function add_admin_notice () {
@@ -112,22 +123,14 @@ class WC_Force_Auth_Before_Checkout {
 		$plugin_data = \get_plugin_data( __FILE__ );
 		$plugin_name = $plugin_data['Name'];
 		$prefix = 'wc_force_auth_';
+		$cookie_name = $prefix . 'donation_notice_dismissed';
 
 		if ( ! in_array( $pagenow, [ 'plugins.php', 'update-core.php' ] ) ) return;
+		if ( isset( $_COOKIE[ $cookie_name ] ) ) return;
 
-		if ( isset( $_GET[$prefix . 'dismiss_donation_notice'] ) ) {
-			update_option(
-				$prefix . 'donation_notice_dismissed',
-				time()
-			);
-		}
-
-		$notice_dismissed = (int) get_option( $prefix . 'donation_notice_dismissed' );
-		$duration = 6 * MONTH_IN_SECONDS;
-		if ( $notice_dismissed && time() <= ( $duration + $notice_dismissed ) ) {
-			return;
-		}
-
+		//$notice_dismissed = (int) get_option( $prefix . 'donation_notice_dismissed' );
+		$cookie_expires = time() + 6 * MONTH_IN_SECONDS;
+		$cookie_expires *= 1000; // because javascript use milliseconds
 		?>
 		<div id="<?= $prefix ?>donation_notice" class="notice notice-info is-dismissible">
 			<p>
@@ -146,17 +149,39 @@ class WC_Force_Auth_Before_Checkout {
 			window.jQuery(function ($) {
 				const dismiss_selector = '#<?= $prefix ?>donation_notice .notice-dismiss';
 				$(document).on('click', dismiss_selector, function (evt) {
-					$.ajax({
-						url: window.location.origin
-							+ window.location.pathname
-							+ '?<?= $prefix ?>dismiss_donation_notice',
-						method: 'GET'
-					});
-				})
+					const date = new Date(); date.setTime(<?= $cookie_expires ?>);
+        			const expires = "; expires=" + date.toUTCString(); 
+					const cookie = "<?= $cookie_name ?>=1" + expires + "; path=<?= admin_url(); ?>; samesite; secure";
+					document.cookie = cookie;
+				});
 			})
 		</script>
 		<?php
 	}
+
+	public static function get_instance() {
+		if ( is_null( self::$_instance ) ) {
+			self::$_instance = new self();
+		}
+		return self::$_instance;
+	}
+
+	public static function activation () {
+		$prefix = 'wc_force_auth_';
+		delete_option( $prefix . 'donation_notice_dismissed' );
+	}
+
+	public static function deactivation () {
+		$prefix = 'wc_force_auth_';
+		$cookie_name = $prefix . 'donation_notice_dismissed';
+		if ( isset( $_COOKIE[ $cookie_name ] ) ) {
+			unset( $_COOKIE[ $cookie_name ] ); 
+			setcookie( $cookie_name, null, -1 );
+		}
+	}
 }
 
 WC_Force_Auth_Before_Checkout::get_instance();
+
+register_activation_hook( __FILE__, [ WC_Force_Auth_Before_Checkout::class, 'activation' ] );
+register_deactivation_hook( __FILE__, [ WC_Force_Auth_Before_Checkout::class, 'deactivation' ] );
