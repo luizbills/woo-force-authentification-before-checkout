@@ -3,7 +3,7 @@ Contributors: luizbills
 Donate link: http://luizpb.com/en/
 Tags: woocommerce, checkout, login, register, force, before, cart
 Requires at least: 4.8
-Tested up to: 5.7
+Tested up to: 5.9
 Requires PHP: 7.3
 Stable tag: 1.4.1
 License: GPLv3

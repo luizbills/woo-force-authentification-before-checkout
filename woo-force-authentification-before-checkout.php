@@ -12,8 +12,7 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Text Domain: wc-force-auth
 Domain Path: /languages
 
-WC requires at least: 3.0
-WC tested up to: 5.3
+WC tested up to: 6.3
 */
 
 if ( ! defined( 'WPINC' ) ) die();
@@ -38,7 +37,7 @@ class WC_Force_Auth_Before_Checkout {
 	}
 
 	protected function get_login_page_url () {
-		return apply_filters( 'wc_force_auth_login_page_url', 
+		return apply_filters( 'wc_force_auth_login_page_url',
 			get_permalink( get_option( 'woocommerce_myaccount_page_id' ) )
 		);
 	}
@@ -141,7 +140,7 @@ class WC_Force_Auth_Before_Checkout {
 			</p>
 			<p>
 				<a href="https://www.paypal.com/donate?hosted_button_id=29U8C2YV4BBQC&source=url" class="button button-primary">
-					<?= esc_html__( 'Donate', 'wc-force-auth' ); ?> 
+					<?= esc_html__( 'Donate', 'wc-force-auth' ); ?>
 				</a>
 			</p>
 		</div>
@@ -150,7 +149,7 @@ class WC_Force_Auth_Before_Checkout {
 				const dismiss_selector = '#<?= $prefix ?>donation_notice .notice-dismiss';
 				$(document).on('click', dismiss_selector, function (evt) {
 					const date = new Date(); date.setTime(<?= $cookie_expires ?>);
-        			const expires = "; expires=" + date.toUTCString(); 
+        			const expires = "; expires=" + date.toUTCString();
 					const cookie = "<?= $cookie_name ?>=1" + expires + "; path=<?= admin_url(); ?>; samesite; secure";
 					document.cookie = cookie;
 				});
@@ -175,7 +174,7 @@ class WC_Force_Auth_Before_Checkout {
 		$prefix = 'wc_force_auth_';
 		$cookie_name = $prefix . 'donation_notice_dismissed';
 		if ( isset( $_COOKIE[ $cookie_name ] ) ) {
-			unset( $_COOKIE[ $cookie_name ] ); 
+			unset( $_COOKIE[ $cookie_name ] );
 			setcookie( $cookie_name, null, -1 );
 		}
 	}
