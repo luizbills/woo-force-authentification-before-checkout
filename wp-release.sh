@@ -29,7 +29,7 @@ GITHUB_REPO_NAME="woo-force-authentification-before-checkout"
 
 # folder with plugin banner and screenshots
 # note: you should commit these assets separately
-PLUGIN_ASSETS_DIR="_wp-assets"
+PLUGIN_ASSETS_DIR=".wp-org"
 
 # ----- STOP EDITING HERE -----
 
