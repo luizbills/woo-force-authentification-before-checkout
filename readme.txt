@@ -1,4 +1,4 @@
-=== WooCommerce Force Authentification Before Checkout ===
+=== Force Authentification Before Checkout for WooCommerce ===
 Contributors: luizbills
 Donate link: http://luizpb.com/en/
 Tags: woocommerce, checkout, login, register, force, before, cart
