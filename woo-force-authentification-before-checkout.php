@@ -79,7 +79,7 @@ class WC_Force_Auth_Before_Checkout {
 			?>
 			<meta
 				http-equiv="Refresh"
-				content="0; url='<?= esc_attr( $this->get_checkout_page_url() ); ?>'"
+				content="0; url='<?php echo esc_attr( $this->get_checkout_page_url() ); ?>'"
 			/>
 			<?php
 			exit();
@@ -111,7 +111,7 @@ class WC_Force_Auth_Before_Checkout {
 		?>
 		<div class="notice notice-error">
 			<p>
-				<?= esc_html__( 'You need install and activate the WooCommerce plugin.', 'wc-force-auth' ) ?>
+				<?php echo esc_html__( 'You need install and activate the WooCommerce plugin.', 'wc-force-auth' ) ?>
 			</p>
 		</div>
 		<?php
@@ -131,26 +131,26 @@ class WC_Force_Auth_Before_Checkout {
 		$cookie_expires = time() + 6 * MONTH_IN_SECONDS;
 		$cookie_expires *= 1000; // because javascript use milliseconds
 		?>
-		<div id="<?= $prefix ?>donation_notice" class="notice notice-info is-dismissible">
+		<div id="<?php $prefix ?>donation_notice" class="notice notice-info is-dismissible">
 			<p>
-				<?= sprintf(
+				<?php printf(
 					esc_html__( 'Thanks for using the %s plugin! Consider making a donation to help keep this plugin always up to date.', 'wc-force-auth' ),
 					"<strong>$plugin_name</strong>"
 				); ?>
 			</p>
 			<p>
 				<a href="https://www.paypal.com/donate?hosted_button_id=29U8C2YV4BBQC&source=url" class="button button-primary">
-					<?= esc_html__( 'Donate', 'wc-force-auth' ); ?>
+					<?php echo esc_html__( 'Donate', 'wc-force-auth' ); ?>
 				</a>
 			</p>
 		</div>
 		<script>
 			window.jQuery(function ($) {
-				const dismiss_selector = '#<?= $prefix ?>donation_notice .notice-dismiss';
+				const dismiss_selector = '#<?php echo $prefix ?>donation_notice .notice-dismiss';
 				$(document).on('click', dismiss_selector, function (evt) {
-					const date = new Date(); date.setTime(<?= $cookie_expires ?>);
+					const date = new Date(); date.setTime(<?php echo $cookie_expires ?>);
         			const expires = "; expires=" + date.toUTCString();
-					const cookie = "<?= $cookie_name ?>=1" + expires + "; path=<?= admin_url(); ?>; samesite; secure";
+					const cookie = "<?php echo $cookie_name ?>=1" + expires + "; path=<?php echo admin_url(); ?>; samesite; secure";
 					document.cookie = cookie;
 				});
 			})
