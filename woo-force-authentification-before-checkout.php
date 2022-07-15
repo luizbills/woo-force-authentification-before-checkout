@@ -2,7 +2,7 @@
 /*
 Plugin Name: Force Authentification Before Checkout for WooCommerce
 Description: Force customer to log in or register before checkout
-Version: 1.4.1
+Version: 1.4.2
 Author: Luiz Bills
 Author URI: https://luizpb.com/
 
@@ -11,8 +11,6 @@ License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 Text Domain: wc-force-auth
 Domain Path: /languages
-
-WC tested up to: 6.3
 */
 
 if ( ! defined( 'WPINC' ) ) die();

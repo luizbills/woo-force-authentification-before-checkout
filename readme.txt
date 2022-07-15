@@ -3,9 +3,9 @@ Contributors: luizbills
 Donate link: http://luizpb.com/en/
 Tags: woocommerce, checkout, login, register, force, before, cart
 Requires at least: 4.8
-Tested up to: 5.9
+Tested up to: 6.0
 Requires PHP: 7.3
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -38,6 +38,10 @@ Yes. With this [code](https://gist.github.com/luizbills/25d2c83848de1fb23beceb0e
 1. Notice in "my account" page.
 
 == Changelog ==
+
+= 1.4.2 =
+
+* Bump Tested to up
 
 = 1.4.1 =
 
