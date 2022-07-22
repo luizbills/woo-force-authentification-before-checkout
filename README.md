@@ -6,15 +6,13 @@
 [![WordPress Plugin Downloads](https://img.shields.io/wordpress/plugin/dt/woo-force-authentification-before-checkout.svg?label=Downloads&logo=wordpress&style=flat-square)](https://wordpress.org/plugins/woo-force-authentification-before-checkout/advanced/)
 [![License](https://img.shields.io/badge/LICENSE-GPLv3-blue?style=flat-square)](https://wordpress.org/plugins/woo-force-authentification-before-checkout/)
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J8DU80P)
-
 ## Description
 
 Force customer to log in or register before checkout to increase your conversion rate.
 
-## Compatibility
+### Donations
 
-- Requires WooCommerce v3.0 or later.
+[![Donate](https://img.shields.io/badge/SUPPORT%20ME-DONATE-2b8a3e?style=for-the-badge)](https://luizpb.com/donate/)
 
 ## Contribuitions
 
