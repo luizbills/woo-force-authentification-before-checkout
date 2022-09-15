@@ -140,6 +140,9 @@ class WC_Force_Auth_Before_Checkout {
 				<a href="https://www.paypal.com/donate?hosted_button_id=29U8C2YV4BBQC&source=url" class="button button-primary">
 					<?php echo esc_html__( 'Donate', 'wc-force-auth' ); ?>
 				</a>
+				<a href="https://wordpress.org/support/plugin/woo-force-authentification-before-checkout/reviews/#new-post" class="button">
+					<?php echo esc_html__( 'Make a review', 'wc-force-auth' ); ?>
+				</a>
 			</p>
 		</div>
 		<script>
