@@ -129,7 +129,7 @@ class WC_Force_Auth_Before_Checkout {
 		$cookie_expires = time() + 6 * MONTH_IN_SECONDS;
 		$cookie_expires *= 1000; // because javascript use milliseconds
 		?>
-		<div id="<?php $prefix ?>donation_notice" class="notice notice-info is-dismissible">
+		<div id="<?php echo esc_attr( $prefix ) ?>donation_notice" class="notice notice-info is-dismissible">
 			<p>
 				<?php printf(
 					esc_html__( 'Thanks for using the %s plugin! Consider making a donation to help keep this plugin always up to date.', 'wc-force-auth' ),
