@@ -2,9 +2,11 @@
 /*
 Plugin Name: Force Authentification Before Checkout for WooCommerce
 Description: Force customer to log in or register before checkout
-Version: 1.4.4
+Version: 1.4.5
 Author: Luiz Bills
 Author URI: https://luizpb.com/
+
+Requires Plugins: woocommerce
 
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -176,7 +178,7 @@ class WC_Force_Auth_Before_Checkout {
 		$cookie_name = $prefix . 'donation_notice_dismissed';
 		if ( isset( $_COOKIE[ $cookie_name ] ) ) {
 			unset( $_COOKIE[ $cookie_name ] );
-			setcookie( $cookie_name, null, -1 );
+			setcookie( $cookie_name, '', -1 );
 		}
 	}
 }
