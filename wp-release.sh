@@ -19,67 +19,105 @@
 # ----- START EDITING HERE -----
 
 # The slug of your WordPress.org plugin
+# You need publish your plugin first: https://wordpress.org/plugins/developers/add/
 WP_PLUGIN_SLUG="woo-force-authentification-before-checkout"
 
-# GITHUB user who owns the repo
-GITHUB_REPO_OWNER="luizbills"
+# The GITHUB repository
+# format: username/repository (example: luizbills/wp-tweaks)
+GITHUB_REPO_SLUG="luizbills/woo-force-authentification-before-checkout"
 
-# GITHUB Repository name
-GITHUB_REPO_NAME="woo-force-authentification-before-checkout"
+# The main Github repository branch
+MAIN_BRANCH="master"
 
-# folder with plugin banner and screenshots
-# note: you should commit these assets separately
+# directory with plugin icon, banner and screenshots used in https://wordpress.org
 PLUGIN_ASSETS_DIR=".wp-org"
 
 # ----- STOP EDITING HERE -----
 
-set -e
-clear
+# Parse cli arguments
+ONLY_TRUNK="no"
+POSITIONAL_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --only-trunk)
+      ONLY_TRUNK="yes"
+      shift
+      ;;
+    -*|--*)
+      echo "Unknown option $1"
+      exit 1
+      ;;
+	*)
+      POSITIONAL_ARGS+=("$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
-# ASK INFO
+set -e
+clear >$( tty ) # clear the terminal
+
 echo "--------------------------------------------"
 echo "      Github to WordPress.org RELEASER      "
 echo "--------------------------------------------"
-read -p "RELEASE VERSION: " VERSION
-echo "--------------------------------------------"
-echo ""
-echo "Before continuing, confirm that you have done the following :)"
-echo ""
-read -p " - Added a changelog for "${VERSION}"?"
-read -p " - Set version in the readme.txt and main file to "${VERSION}"?"
-read -p " - Set stable tag in the readme.txt file to "${VERSION}"?"
-read -p " - Updated the POT file?"
-read -p " - Committed all changes up to GITHUB?"
-echo ""
-read -p "PRESS [ENTER] TO BEGIN RELEASING "${VERSION}
-clear
 
-# VARS
-ROOT_PATH=$(pwd)"/"
-TEMP_GITHUB_REPO=${WP_PLUGIN_SLUG}"-git"
-TEMP_SVN_REPO=${WP_PLUGIN_SLUG}"-svn"
-SVN_REPO="http://plugins.svn.wordpress.org/"${WP_PLUGIN_SLUG}"/"
-GIT_REPO="https://github.com/"${GITHUB_REPO_OWNER}"/"${GITHUB_REPO_NAME}".git"
+if [ "$ONLY_TRUNK" == "yes" ];
+then
+	read -p "PRESS [ENTER] TO BEGIN UPDATING THE \"trunk\""
+else
+	REMOTE_README_TXT="https://raw.githubusercontent.com/${GITHUB_REPO_SLUG}/${MAIN_BRANCH}/readme.txt"
+	STABLE_TAG=$( curl -m 3 -s $REMOTE_README_TXT | sed -n 's/Stable tag: \([0-9]\.[0-9]\.[0-9]*\).*/\1/p' )
+
+	trim_spaces() {
+		# Usage: trim_spaces "   example   string    "
+		: "${1#"${1%%[![:space:]]*}"}"
+		: "${_%"${_##*[![:space:]]}"}"
+		printf '%s\n' "$_"
+	}
+	STABLE_TAG=$( trim_spaces $STABLE_TAG )
+
+	# ASK INFO
+	read -p "RELEASE VERSION$( [ $STABLE_TAG ] && echo " [$STABLE_TAG]" || echo "" ): " VERSION
+
+	VERSION=${VERSION:-$STABLE_TAG}
+
+	echo "--------------------------------------------"
+	echo ""
+	echo "Before continuing, confirm that you have done the following:"
+	echo ""
+	read -p " - Added a changelog for "${VERSION}"?"
+	read -p " - Set version in the main file to "${VERSION}"?"
+	read -p " - Set stable tag in the readme.txt file to "${VERSION}"?"
+	read -p " - Updated the POT file?"
+	read -p " - Committed all changes up to GITHUB?"
+	echo ""
+	read -p "PRESS [ENTER] TO BEGIN RELEASING "${VERSION}
+
+	clear >$( tty ) # clear the terminal
+fi
+
+SVN_REPO="http://plugins.svn.wordpress.org/${WP_PLUGIN_SLUG}/"
+GIT_REPO="https://github.com/${GITHUB_REPO_SLUG}.git"
+CURRENT_DIR="."
+DIR="$( realpath ${CURRENT_DIR} )"
+TEMP_GITHUB_REPO="/tmp/${WP_PLUGIN_SLUG}-git"
+TEMP_SVN_REPO="/tmp/${WP_PLUGIN_SLUG}-svn"
 
 # DELETE OLD TEMP DIRS
-rm -Rf $ROOT_PATH$TEMP_GITHUB_REPO
-
-# CHECKOUT SVN DIR IF NOT EXISTS
-if [[ ! -d $TEMP_SVN_REPO ]];
-then
-	echo "Checking out WordPress.org plugin repository"
-	svn checkout $SVN_REPO $TEMP_SVN_REPO || { echo "Unable to checkout repo."; exit 1; }
-fi
+rm -Rf $TEMP_GITHUB_REPO
+rm -rf $TEMP_SVN_REPO
 
 # CLONE GIT DIR
 echo "Cloning GIT repository from GITHUB"
 git clone --progress --recurse-submodules $GIT_REPO $TEMP_GITHUB_REPO || { echo "Unable to clone repo."; exit 1; }
 
 # MOVE INTO GIT DIR
-cd "$ROOT_PATH$TEMP_GITHUB_REPO"
+cd "$TEMP_GITHUB_REPO"
+
+clear >$( tty ) # clear the terminal
 
 # LIST BRANCHES
-clear
 git fetch origin
 echo "WHICH BRANCH DO YOU WISH TO DEPLOY?"
 git branch -r || { echo "Unable to list branches."; exit 1; }
@@ -92,44 +130,63 @@ git checkout ${BRANCH} || { echo "Unable to checkout branch."; exit 1; }
 
 if [[ -f "composer.json" ]];
 then
-	echo "Installing composer packages"
-	composer install --no-dev || { echo "Unable to install composer packages."; exit 1; }
+	echo "Installing composer packages..."
+	composer install --no-ansi --no-dev --no-interaction --no-plugins --no-progress --no-scripts --optimize-autoloader || { echo "Unable to install composer packages."; exit 1; }
 fi
 
-echo ""
-read -p "PRESS [ENTER] TO DEPLOY BRANCH "${BRANCH}
+if [[ -f "package.json" ]];
+then
+	echo "Installing NPM packages..."
+	npm ci --no-progress || { echo "Unable to install npm packages."; exit 1; }
+fi
+
+echo "Looking for PHP syntax errors"
+find . -type f -name '*.php' ! -path './vendor/*' -print0 | while read -d $'\0' file
+do
+	output=$(php -l "$file")
+	if [ ! $? -eq 0 ];
+	then
+		echo -e "\e[31mPHP Syntax Error!\e[0m"
+		exit 1
+	fi
+done
+echo "No syntax errors found"
 
 # REMOVE UNWANTED FILES & FOLDERS
 echo "Removing unwanted files"
-rm -Rf .git
-rm -Rf .github
-rm -Rf tests
+rm -rf $0
+rm -rf .git
+rm -rf .github
+rm -rf tests
+rm -rf docs
+rm -rf scripts
+rm -rf logs
+rm -rf node_modules
+rm -rf wp-build
 rm -f .gitattributes
 rm -f .gitignore
 rm -f .gitmodules
-rm -f .travis.yml
-rm -f package.json
-rm -f composer.json
+rm -f .editorconfig
+rm -f .prettierrc.json
+rm -f package-lock.json
+rm -f pnpm-lock.yaml
 rm -f composer.lock
 rm -f phpunit.xml
 rm -f phpunit.xml.dist
 rm -f README.md
-rm -f .coveralls.yml
-rm -f .editorconfig
 rm -f CONTRIBUTING.md
-rm -f "${0}" # don't deploy this file
-rm -f .gitpod.dockerfile
-rm -f .init.sh
-rm -f .gitpod.yml
 
-# don't deploy WordPress plugin banners and icons
-if [[ -n PLUGIN_ASSETS_DIR ]];
-then
-    rm -Rf ${PLUGIN_ASSETS_DIR}
-fi
+echo ""
+read -p "PRESS [ENTER] TO DEPLOY BRANCH "${BRANCH}
+
+clear >$( tty ) # clear the terminal
+
+# CHECKOUT SVN DIR IF NOT EXISTS
+echo "Checking out WordPress.org plugin SVN repository"
+svn checkout $SVN_REPO $TEMP_SVN_REPO || { echo "Unable to checkout repo."; exit 1; }
 
 # MOVE INTO SVN DIR
-cd "$ROOT_PATH$TEMP_SVN_REPO"
+cd "$TEMP_SVN_REPO"
 
 # UPDATE SVN
 echo "Updating SVN"
@@ -139,11 +196,25 @@ svn update || { echo "Unable to update SVN."; exit 1; }
 echo "Replacing trunk"
 rm -Rf trunk/
 
-# DELETE VERSION TAG
-rm -Rf tags/${VERSION}
-
 # COPY GIT DIR TO TRUNK
-cp -R "$ROOT_PATH$TEMP_GITHUB_REPO" trunk/
+cp -a "${TEMP_GITHUB_REPO}/." trunk/
+
+if [[ -d "trunk/${PLUGIN_ASSETS_DIR}" ]];
+then
+	echo "Checking Plugin icon, banner and screenshots..."
+	rm -Rf assets/
+	mv trunk/$PLUGIN_ASSETS_DIR assets
+fi
+
+if [ "$ONLY_TRUNK" == "no" ];
+then
+	# DELETE VERSION TAG
+	rm -Rf tags/${VERSION}
+
+	# COPY TRUNK TO TAGS/$VERSION
+	echo "Copying trunk to new tag"
+	cp -a trunk/ tags/${VERSION}
+fi
 
 # DO THE ADD ALL NOT KNOWN FILES UNIX COMMAND
 svn add --force * --auto-props --parents --depth infinity -q
@@ -157,29 +228,40 @@ do
     svn rm --force "$MISSING_PATH"
 done
 
-# COPY TRUNK TO TAGS/$VERSION
-echo "Copying trunk to new tag"
-svn copy trunk tags/${VERSION} || { echo "Unable to create tag."; exit 1; }
+clear >$( tty ) # clear the terminal
 
 # DO SVN COMMIT
-clear
 echo "Showing SVN status"
 svn status
 
 # PROMPT USER
 echo ""
-read -p "PRESS [ENTER] TO COMMIT RELEASE "${VERSION}" TO WORDPRESS.ORG"
+if [ "$ONLY_TRUNK" == "no" ];
+then
+	read -p "PRESS [ENTER] TO COMMIT RELEASE "${VERSION}" TO WORDPRESS.ORG"
+else
+	read -p "PRESS [ENTER] TO UPDATE THE \"trunk\" ON WORDPRESS.ORG"
+fi
 echo ""
+clear >$( tty ) # clear the terminal
 
 # DEPLOY
 echo ""
 echo "Committing to WordPress.org...this may take a while..."
-svn commit -m "Release "${VERSION}", see readme.txt for the changelog." || { echo "Unable to commit."; exit 1; }
+
+if [ "$ONLY_TRUNK" == "no" ];
+then
+	COMMIT_MESSAGE="Release "${VERSION}", see readme.txt for the changelog."
+else
+	COMMIT_MESSAGE="Update trunk."
+fi
+
+svn commit -m "$COMMIT_MESSAGE" || { echo "Unable to commit."; exit 1; }
 
 # REMOVE THE TEMP DIRS
-echo "CLEANING UP"
-rm -Rf "$ROOT_PATH$TEMP_GITHUB_REPO"
-rm -Rf "$ROOT_PATH$TEMP_SVN_REPO"
+echo "CLEANING UP..."
+rm -Rf "$TEMP_GITHUB_REPO"
+rm -Rf "$TEMP_SVN_REPO"
 
 # DONE, BYE
-echo "RELEASER DONE :D"
+echo "RELEASER DONE!"
