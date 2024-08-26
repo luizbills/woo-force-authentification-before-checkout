@@ -1,7 +1,7 @@
 === Force Authentification Before Checkout for WooCommerce ===
 Contributors: luizbills
 Donate link: https://luizpb.com/donate/
-Tags: woocommerce, checkout, login, register, force, before, cart
+Tags: woocommerce, checkout, login, register, cart
 Requires at least: 4.8
 Tested up to: 6.6
 Requires PHP: 7.3
